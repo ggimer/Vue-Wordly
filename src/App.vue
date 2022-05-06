@@ -8,7 +8,7 @@ import HelloWorld from "@/components/HelloWorld.vue";
     <img
       alt="Picture of Grant"
       class="logo"
-      src="@/assets/Grant in a circle 2.png"
+      src="@/assets/Grant.png"
       width="125"
       height="125"
     />
