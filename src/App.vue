@@ -6,15 +6,15 @@ import HelloWorld from "@/components/HelloWorld.vue";
 <template>
   <header>
     <img
-      alt="Vue logo"
+      alt="Picture of Grant"
       class="logo"
-      src="@/assets/logo.svg"
-      width="325"
-      height="325"
+      src="@/assets/Grant in a circle 2.png"
+      width="125"
+      height="125"
     />
 
     <div class="wrapper">
-      <HelloWorld msg="I did it!" />
+      <HelloWorld msg="Welcome" />
 
       <nav>
         <RouterLink to="/">Home</RouterLink>

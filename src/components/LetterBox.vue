@@ -12,12 +12,18 @@ const props = defineProps({
 
 <style>
 .greenLetter {
-  background-color: green;
+  background-color: hsla(160, 100%, 37%, 1);
+  color: black;
+  transition: 0.8s;
 }
 .yellowLetter {
-  background-color: brown;
+  background-color: hsla(55, 100%, 37%, 1);
+  color: black;
+  transition: 0.8s;
 }
 .grayLetter {
   background-color: gray;
+  color: black;
+  transition: 0.8s;
 }
 </style>

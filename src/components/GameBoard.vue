@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import LetterBox from "@/components/LetterBox.vue";
 import KeyboardSection from "@/components/KeyboardSection.vue";
+import MessageBox from "@/components/MessageBox.vue";
 
 const NUM_ROWS = 6;
 const NUM_LETTERS = 5;
@@ -20,9 +21,9 @@ const letterValues = ref(init2dArray(NUM_ROWS, NUM_LETTERS));
 const colorValues = ref(init2dArray(NUM_ROWS, NUM_LETTERS));
 console.log("colorValues = " + colorValues.value);
 const round = ref(0);
-const word = ref("fucky");
-
-
+const word = ref("");
+const messageBox = ref("");
+      getNewWord();
 function range(start, end) {
   let returnValue = [];
   for (let i = start; i < end; i++) {
@@ -31,30 +32,54 @@ function range(start, end) {
   return returnValue;
 }
 function doGuess(a) {
-  console.log(a);
   let letters = a.split("");
-  console.log(letters);
+  let w = word.value.split("");
   for (let i = 0; i < NUM_LETTERS; i++) {
     letterValues.value[round.value][i] = letters[i];
+    if (letterValues.value[round.value][i] == w[i]) {
+      colorValues.value[round.value][i] = "green";
+    } else if (w.indexOf(letterValues.value[round.value][i]) > -1) {
+      colorValues.value[round.value][i] = "yellow";
+    } else {
+      colorValues.value[round.value][i] = "gray";
+    }
   }
   console.log(letterValues.value);
   round.value++;
+  checkWin();
 }
-function setColor(c) {
-  if (round.value > 0) {
-    for (let i = 0; i < round.value; i++) {
-      for (let j = 0; j < NUM_LETTERS; j++) {
-        if (letterValues.value[i][j] == c.letter) {
-          if (colorValues.value[i][j] == "") {
-            colorValues.value[i][j] = c.color;
-            console.log(letterValues.value[i][j]);
-            console.log(colorValues.value[i][j]);
-          }
-        }
-      }
-    }
+function checkWin() {
+  let lastAnswer = "";
+  letterValues.value[round.value - 1].forEach((e) => {
+    lastAnswer = lastAnswer + e;
+  });
+  if (lastAnswer == word.value) {
+    setWinState(1);
+  } else if (round.value >= NUM_ROWS) {
+    setWinState(0);
   }
 }
+function setWinState(code) {
+  if (code == 1) {
+    // you win
+    messageBox.value = "You won. Hooray.";
+  } else if (code == 0) {
+    // you lose
+    messageBox.value = "You lost. Oh no. The word was " + word.value + ", by the way.";
+  }
+}
+
+function getNewWord() {
+  let newWord;
+  fetch("https://random-word-api.herokuapp.com/word?length=5")
+    .then((response) => (response = response.json()))
+    .then((response) => {
+      newWord = response[0];
+      word.value = newWord;
+    })
+    .catch((err) => console.error(err));
+}
+
 </script>
 
 <template>
@@ -78,8 +103,9 @@ function setColor(c) {
       :round="round"
       :word="word"
       @submission="(msg) => doGuess(msg)"
-      @colorChange="(returnedValue) => setColor(returnedValue)"
     />
+    <button @click="getNewWord">New word</button>
+    <MessageBox :message="messageBox" />
   </div>
 </template>
 
@@ -94,8 +120,8 @@ function setColor(c) {
 }
 .letterBox {
   font-size: 2em;
-  min-width: 2em;
-  min-height: 2em;
+  min-width: 2.63em;
+  min-height: 2.63em;
   border: solid black 3px;
   /* margin: 0em; */
   text-align: center;

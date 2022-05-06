@@ -36,7 +36,7 @@ const guess = ref("");
 const greens = ref([]);
 const yellows = ref([]);
 const grays = ref([]);
-const emit = defineEmits(["submission", "colorChange"]);
+const emit = defineEmits(["submission"]);
 const props = defineProps({
   round: Number,
   letterValues: [String][String],
@@ -100,7 +100,7 @@ function color(letter) {
   if (greens.value.indexOf(letter) > -1) returnValue = "green";
   else if (yellows.value.indexOf(letter) > -1) returnValue = "yellow";
   else if (grays.value.indexOf(letter) > -1) returnValue = "gray";
-  emit("colorChange", { letter: letter, color: returnValue });
+  // emit("colorChange", { letter: letter, color: returnValue });
   return returnValue;
 }
 
