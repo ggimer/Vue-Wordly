@@ -10,8 +10,10 @@ const props = defineProps({
   <div id="messageBox">{{ message }}</div>
 </template>
 
-<style>
+<style scoped>
 #messageBox {
-  font-size: 3em;
+  font-size: 1em;
+  text-align: center;
+  max-width: 100%;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, watchEffect, watch } from "vue";
 import LetterBox from "@/components/LetterBox.vue";
 
 const alphabet = [
@@ -41,29 +41,35 @@ const props = defineProps({
   round: Number,
   letterValues: [String][String],
   word: String,
+  message: Function,
 });
 function submitGuess() {
-  guess.value = inputValue.value;
-  inputValue.value = "";
-  emit("submission", guess.value);
-  let result = checkAnswer();
-  console.log(result);
-  colorAlphabet(result);
-  console.log(
-    "greens: " +
-      greens.value +
-      "  yellows: " +
-      yellows.value +
-      "  grays: " +
-      grays.value
-  );
-  // TODO: now need to set alphabet letters background colors based on colors stored in result array
+  if (inputValue.value.length == props.word.length) {
+    guess.value = inputValue.value;
+    inputValue.value = "";
+
+    //  check definition:
+    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${guess.value}`)
+      .then((response) => (response = response.json()))
+      .then((response) => {
+        if (response[0].word == guess.value) {
+          emit("submission", guess.value);
+          let result = checkAnswer();
+          colorAlphabet(result);
+        }
+      })
+      .catch(() => {
+        props.message(guess.value + " is not a recognized word.");
+      });
+  }
 }
 function checkAnswer() {
   let result = new Array(props.letterValues[props.round].length);
   let currentGuess = props.letterValues[props.round];
   let answer = props.word.split("");
+  console.log(props.round + "answer...: " + answer);
   currentGuess.forEach((element, index) => {
+    console.log(element + "," + index);
     if (element == answer[index]) {
       result[index] = "green";
     } else if (answer.indexOf(element) > -1) {
@@ -100,41 +106,87 @@ function color(letter) {
   if (greens.value.indexOf(letter) > -1) returnValue = "green";
   else if (yellows.value.indexOf(letter) > -1) returnValue = "yellow";
   else if (grays.value.indexOf(letter) > -1) returnValue = "gray";
-  // emit("colorChange", { letter: letter, color: returnValue });
   return returnValue;
 }
+function resetGame() {
+  inputValue.value = "";
+  guess.value = "";
+  greens.value = [];
+  yellows.value = [];
+  grays.value = [];
+}
 
-console.log(props.letterValues);
+watchEffect(() => {
+  if (props.round == 0) resetGame();
+});
+watchEffect(() => {
+  if (inputValue.value.length > props.word.length) {
+    inputValue.value = inputValue.value.substring(0, props.word.length);
+  }
+});
+
+function clickLetter(letter) {
+  inputValue.value = inputValue.value + letter;
+}
+function backspace() {
+  inputValue.value = inputValue.value.substring(0, inputValue.value.length - 1);
+}
 </script>
 
 <template>
   <div>
     <main>
-      <LetterBox
-        v-for="character in alphabet"
-        :letter="character"
-        :key="character"
-        :id="`alphabetBox` + character"
-        :color="color(character)"
-      />
+      <div id="letters">
+        <LetterBox
+          v-for="character in alphabet"
+          :letter="character"
+          :key="character"
+          :id="`alphabetBox` + character"
+          :color="color(character)"
+          @click="clickLetter(character)"
+        />
+      </div>
+      <div id="inputRow">
+        <input
+          autocomplete="off"
+          id="guessInput"
+          placeholder="Guess a word"
+          v-model="inputValue"
+          @keyup.enter="submitGuess()"
+        />
+        <button @click="backspace()">&lt;&lt;</button>
+        <button @click="submitGuess()">Submit</button>
+      </div>
     </main>
-    <input
-      id="guessInput"
-      placeholder="Guess a word"
-      v-model="inputValue"
-      @keyup.enter="submitGuess()"
-    />
-    input: {{ inputValue }} round: {{ props.round }}
   </div>
 </template>
 
-<style>
-main {
+<style scoped>
+#letters {
   display: flex;
+}
+main {
+  /* width: 420px; */
+  display: flex;
+  flex-direction: column;
+}
+button {
+  background-color: inherit;
+  color: inherit;
+  /* font-size: 2em; */
+  border: black solid;
+}
+#inputRow {
+  width: 100%;
+  display: flex;
+  /* justify-content: space-evenly; */
 }
 input {
   background-color: inherit;
   color: inherit;
+  font-size: 2em;
+  width: 10.2em;
+  border: black solid;
 }
 .letterBox {
   font-size: 1em;
@@ -143,5 +195,6 @@ input {
   border: solid black 3px;
   /* margin: 0em; */
   text-align: center;
+  cursor: pointer;
 }
 </style>

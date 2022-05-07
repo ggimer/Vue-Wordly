@@ -4,7 +4,7 @@ import LetterBox from "@/components/LetterBox.vue";
 import KeyboardSection from "@/components/KeyboardSection.vue";
 import MessageBox from "@/components/MessageBox.vue";
 
-const NUM_ROWS = 6;
+const NUM_ROWS = 9;
 const NUM_LETTERS = 5;
 
 function init2dArray(sizeX, sizeY) {
@@ -19,17 +19,35 @@ function init2dArray(sizeX, sizeY) {
 }
 const letterValues = ref(init2dArray(NUM_ROWS, NUM_LETTERS));
 const colorValues = ref(init2dArray(NUM_ROWS, NUM_LETTERS));
-console.log("colorValues = " + colorValues.value);
 const round = ref(0);
+const messageBox = ref();
+const wordLength = ref(NUM_LETTERS);
 const word = ref("");
-const messageBox = ref("");
-      getNewWord();
+
+resetGame();
+
+function resetGame() {
+  letterValues.value = init2dArray(NUM_ROWS, NUM_LETTERS);
+  colorValues.value.forEach((x) => {
+    x.forEach((y, index) => {
+      x[index] = "";
+    });
+  });
+  round.value = 0;
+  messageBox.value =
+    "Start the game by guessing a " + NUM_LETTERS + " letter word.";
+  getNewWord();
+}
+
 function range(start, end) {
   let returnValue = [];
   for (let i = start; i < end; i++) {
     returnValue.push(i);
   }
   return returnValue;
+}
+function message(msg) {
+  messageBox.value = msg;
 }
 function doGuess(a) {
   let letters = a.split("");
@@ -44,8 +62,8 @@ function doGuess(a) {
       colorValues.value[round.value][i] = "gray";
     }
   }
-  console.log(letterValues.value);
   round.value++;
+  message("");
   checkWin();
 }
 function checkWin() {
@@ -62,24 +80,37 @@ function checkWin() {
 function setWinState(code) {
   if (code == 1) {
     // you win
-    messageBox.value = "You won. Hooray.";
+    message("You won. Hooray.");
   } else if (code == 0) {
     // you lose
-    messageBox.value = "You lost. Oh no. The word was " + word.value + ", by the way.";
+    message("You lost. Oh no. The word was '" + word.value + "', by the way.");
   }
 }
 
 function getNewWord() {
+  // get random word starting with w with 4 other characters
+  // https://api.datamuse.com/words?sp=w????
+
+  let length = wordLength.value;
+  let alphabet = "abcdefghijklmnopqrstuvwxyz";
   let newWord;
-  fetch("https://random-word-api.herokuapp.com/word?length=5")
+  let firstChar = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+
+  let tailString = "";
+  for (let i = 0; i < length - 1; i++) {
+    tailString = tailString + "?";
+  }
+  let searchString = firstChar + tailString;
+
+  fetch(`https://api.datamuse.com/words?sp=${searchString}`)
     .then((response) => (response = response.json()))
     .then((response) => {
-      newWord = response[0];
+      let index = Math.floor(Math.random() * response.length);
+      newWord = response[index].word;
       word.value = newWord;
     })
     .catch((err) => console.error(err));
 }
-
 </script>
 
 <template>
@@ -98,25 +129,35 @@ function getNewWord() {
         :color="colorValues[num][box]"
       />
     </div>
+    <button id="resetGameButton" @click="resetGame()">Reset Game</button>
     <KeyboardSection
       :letterValues="letterValues"
       :round="round"
       :word="word"
+      :message="message"
       @submission="(msg) => doGuess(msg)"
     />
-    <button @click="getNewWord">New word</button>
     <MessageBox :message="messageBox" />
   </div>
 </template>
 
 <style scoped>
+button {
+  background-color: inherit;
+  color: inherit;
+  border: black solid;
+}
+#resetGameButton {
+  width: 100%;
+}
 .gameBoardRow {
   display: flex;
   padding: 0.1em;
 }
 #gameBoard {
   border: 10px black solid;
-  /* width: auto; */
+  width: fit-content;
+  height: fit-content;
 }
 .letterBox {
   font-size: 2em;
