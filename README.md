@@ -1,6 +1,6 @@
 # Vue-Wordly
 
-A word-guessing game implemented using Vue.
+A word-guessing game implemented using Vue. You can <a href="https://celebrated-donut-38f384.netlify.app">play it here</a>.
 
 # 
 This is a word-guessing game I discovered recently. I decided to make my own
