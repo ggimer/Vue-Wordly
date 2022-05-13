@@ -1,13 +1,11 @@
 <script setup>
-import { ref } from "vue";
-
 const props = defineProps({
   message: String,
 });
 </script>
 
 <template>
-  <div id="messageBox">{{ message }}</div>
+  <div id="messageBox">{{ props.message }}</div>
 </template>
 
 <style scoped>

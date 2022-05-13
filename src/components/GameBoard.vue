@@ -4,7 +4,7 @@ import LetterBox from "@/components/LetterBox.vue";
 import KeyboardSection from "@/components/KeyboardSection.vue";
 import MessageBox from "@/components/MessageBox.vue";
 
-const NUM_ROWS = 9;
+const NUM_ROWS = 6;
 const NUM_LETTERS = 5;
 
 function init2dArray(sizeX, sizeY) {
@@ -158,6 +158,7 @@ button {
   border: 10px black solid;
   width: fit-content;
   height: fit-content;
+  justify-content: center;
 }
 .letterBox {
   font-size: 2em;

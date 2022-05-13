@@ -67,9 +67,7 @@ function checkAnswer() {
   let result = new Array(props.letterValues[props.round].length);
   let currentGuess = props.letterValues[props.round];
   let answer = props.word.split("");
-  console.log(props.round + "answer...: " + answer);
   currentGuess.forEach((element, index) => {
-    console.log(element + "," + index);
     if (element == answer[index]) {
       result[index] = "green";
     } else if (answer.indexOf(element) > -1) {
